@@ -31,6 +31,13 @@ const App = () => {
       setAddedProducts([...addedProducts, { ...product, quantity: 1 }]);
     }
   };
+
+  const removeFromCart = (product) => {
+    setAddedProducts(
+      addedProducts.filter((item) => item.name !== product.name)
+    );
+  };
+
   return (
     <>
       <h1>Lista della Spesa:</h1>
@@ -51,6 +58,9 @@ const App = () => {
               <span>{product.name} : </span>
               <span>{product.price} euro -</span>
               <span>x{product.quantity} </span>
+              <button onClick={() => removeFromCart(product)}>
+                Rimuovi Prodotto
+              </button>
             </div>
           ))}
         </>
