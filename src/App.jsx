@@ -29,6 +29,14 @@ const App = () => {
     );
     if (!productExists) {
       setAddedProducts([...addedProducts, { ...product, quantity: 1 }]);
+    } else {
+      setAddedProducts(
+        addedProducts.map((item) =>
+          item.name === product.name
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      );
     }
   };
 
@@ -37,6 +45,10 @@ const App = () => {
       addedProducts.filter((item) => item.name !== product.name)
     );
   };
+
+  const somma = addedProducts.reduce((acc, item) => {
+    return (acc + item.price * item.quantity).toFixed(2);
+  }, 0);
 
   return (
     <>
@@ -54,13 +66,19 @@ const App = () => {
         <>
           <h1>Carrello:</h1>
           {addedProducts.map((product) => (
-            <div key={product.name}>
-              <span>{product.name} : </span>
-              <span>{product.price} euro -</span>
-              <span>x{product.quantity} </span>
-              <button onClick={() => removeFromCart(product)}>
-                Rimuovi Prodotto
-              </button>
+            <div>
+              <div key={product.name}>
+                <span>{product.name} : </span>
+                <span>{product.price} euro -</span>
+                <span>x{product.quantity} </span>
+                <button onClick={() => removeFromCart(product)}>
+                  Rimuovi Prodotto
+                </button>
+              </div>
+              <div>
+                <h3>Il totale da pagare è:</h3>
+                {somma} euro
+              </div>
             </div>
           ))}
         </>
