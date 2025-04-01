@@ -1,5 +1,5 @@
 import React from "react";
-import { useReducer, useState } from "react";
+import { useReducer } from "react";
 
 const products = [
   { name: "Mela", price: 0.5 },
@@ -8,16 +8,16 @@ const products = [
   { name: "Pasta", price: 0.7 },
 ];
 
-function cartReducer(state, action) {
+function cartReducer(addedProducts, action) {
   switch (action.type) {
     case "ADD_ITEM":
-      const productExists = state.find(
+      const productExists = addedProducts.find(
         (item) => item.name === action.payload.name
       );
       if (!productExists) {
-        return [...state, { ...action.payload, quantity: 1 }];
+        return [...addedProducts, { ...action.payload, quantity: 1 }];
       } else {
-        return state.map((item) =>
+        return addedProducts.map((item) =>
           item.name === action.payload.name
             ? { ...item, quantity: item.quantity + 1 }
             : item
@@ -25,9 +25,9 @@ function cartReducer(state, action) {
       }
 
     case "REMOVE_ITEM":
-      return state.filter((item) => item.name !== action.payload);
+      return addedProducts.filter((item) => item.name !== action.payload);
     default:
-      return state;
+      return addedProducts;
   }
 }
 
