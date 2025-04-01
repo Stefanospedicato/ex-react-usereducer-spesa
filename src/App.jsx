@@ -8,47 +8,37 @@ const products = [
   { name: "Pasta", price: 0.7 },
 ];
 
-const App = () => {
-  const [addedProducts, setAddedProducts] = useState([]);
-
-  const [state, dispatch] = useReducer((state, action) => {
-    switch (action.type) {
-      case "ADD":
-        return [...state, action.payload];
-      case "REMOVE":
-        return state.filter((item) => item.name !== action.payload.name);
-      default:
-        return state;
-    }
-  }, []);
-
-  const addToCart = (product) => {
-    product = { ...product, quantity: 1 };
-    const productExists = addedProducts.find(
-      (item) => item.name === product.name
-    );
-    if (!productExists) {
-      setAddedProducts([...addedProducts, { ...product, quantity: 1 }]);
-    } else {
-      setAddedProducts(
-        addedProducts.map((item) =>
-          item.name === product.name
+function cartReducer(state, action) {
+  switch (action.type) {
+    case "ADD_ITEM":
+      const productExists = state.find(
+        (item) => item.name === action.payload.name
+      );
+      if (!productExists) {
+        return [...state, { ...action.payload, quantity: 1 }];
+      } else {
+        return state.map((item) =>
+          item.name === action.payload.name
             ? { ...item, quantity: item.quantity + 1 }
             : item
-        )
-      );
-    }
-  };
+        );
+      }
 
-  const removeFromCart = (product) => {
-    setAddedProducts(
-      addedProducts.filter((item) => item.name !== product.name)
-    );
-  };
+    case "REMOVE_ITEM":
+      return state.filter((item) => item.name !== action.payload);
+    default:
+      return state;
+  }
+}
 
-  const somma = addedProducts.reduce((acc, item) => {
-    return (acc + item.price * item.quantity).toFixed(2);
-  }, 0);
+const App = () => {
+  const [addedProducts, dispatchCart] = useReducer(cartReducer, []);
+
+  const somma = addedProducts
+    .reduce((acc, item) => {
+      return acc + item.price * item.quantity;
+    }, 0)
+    .toFixed(2);
 
   return (
     <>
@@ -57,7 +47,9 @@ const App = () => {
         <div key={product.name}>
           <span>{product.name} :</span>
           <span> {product.price} euro </span>
-          <button onClick={() => addToCart(product)}>
+          <button
+            onClick={() => dispatchCart({ type: "ADD_ITEM", payload: product })}
+          >
             Aggiungi al carrello
           </button>
         </div>
@@ -66,21 +58,23 @@ const App = () => {
         <>
           <h1>Carrello:</h1>
           {addedProducts.map((product) => (
-            <div>
-              <div key={product.name}>
-                <span>{product.name} : </span>
-                <span>{product.price} euro -</span>
-                <span>x{product.quantity} </span>
-                <button onClick={() => removeFromCart(product)}>
-                  Rimuovi Prodotto
-                </button>
-              </div>
-              <div>
-                <h3>Il totale da pagare è:</h3>
-                {somma} euro
-              </div>
+            <div key={product.name}>
+              <span>{product.name} : </span>
+              <span>{product.price} euro -</span>
+              <span>x{product.quantity} </span>
+              <button
+                onClick={() =>
+                  dispatchCart({ type: "REMOVE_ITEM", payload: product.name })
+                }
+              >
+                Rimuovi Prodotto
+              </button>
             </div>
           ))}
+          <div>
+            <h3>Il totale da pagare è:</h3>
+            {somma} euro
+          </div>
         </>
       )}
     </>
